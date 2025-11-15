@@ -5,6 +5,7 @@ import { z } from "zod";
 import api from "../api/client";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
 
 type SignupForm = z.infer<typeof signupSchema>;
 
@@ -12,11 +13,22 @@ export default function Signup() {
   const { register, handleSubmit, formState:{ errors } } = useForm<SignupForm>({ resolver: zodResolver(signupSchema) });
   const setAuth = useAuthStore(s => s.setAuth);
   const navigate = useNavigate();
+  const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(values: SignupForm) {
-    const { data } = await api.post("/auth/signup", values);
-    setAuth(data.token, data.user);
-    navigate("/");
+    setIsLoading(true);
+    setServerError("");
+    try {
+      const { data } = await api.post("/auth/signup", values);
+      setAuth(data.token, data.user);
+      navigate("/todos");
+    } catch (error: any) {
+      setServerError(error.response?.data?.message || "Signup failed. Please try again.");
+      console.error("Signup error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -41,9 +53,11 @@ export default function Signup() {
             />
             {errors.password && <p className="error-message">{errors.password.message}</p>}
           </div>
-          <button type="submit" className="btn btn-primary">
-            Sign up
+          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+            {isLoading ? "Signing up..." : "Sign up"}
           </button>
+          
+          {serverError && <p className="error-message">{serverError}</p>}
         </form>
         <div className="auth-footer">
           <span>Already have an account?</span>

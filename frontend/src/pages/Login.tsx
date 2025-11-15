@@ -5,18 +5,30 @@ import api from "../api/client";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
+import { useState } from "react";
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const { register, handleSubmit } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
   const setAuth = useAuthStore(s => s.setAuth);
   const navigate = useNavigate();
+  const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(values: LoginForm) {
-    const { data } = await api.post("/auth/login", values);
-    setAuth(data.token, data.user);
-    navigate("/");
+    setIsLoading(true);
+    setServerError("");
+    try {
+      const { data } = await api.post("/auth/login", values);
+      setAuth(data.token, data.user);
+      navigate("/todos");
+    } catch (error: any) {
+      setServerError(error.response?.data?.message || "Login failed. Please check your credentials.");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }
   
   return (
@@ -29,7 +41,9 @@ export default function Login() {
               {...register("email")}
               placeholder="Email"
               className="form-input"
+              type="email"
             />
+            {errors.email && <p className="error-message">{errors.email.message}</p>}
           </div>
           <div className="form-group">
             <input
@@ -38,10 +52,13 @@ export default function Login() {
               type="password"
               className="form-input"
             />
+            {errors.password && <p className="error-message">{errors.password.message}</p>}
           </div>
-          <button type="submit" className="btn btn-primary">
-            Login
+          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
           </button>
+          
+          {serverError && <p className="error-message">{serverError}</p>}
         </form>
         <div className="auth-footer">
           <Link to="/forgot-password" className="link">

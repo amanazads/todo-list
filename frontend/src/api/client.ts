@@ -14,7 +14,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    const errorMessage = error.response?.data?.message || error.message;
+    const errorStatus = error.response?.status;
+    console.error('API Error:', {
+      status: errorStatus,
+      message: errorMessage,
+      url: error.config?.url,
+      data: error.response?.data
+    });
     return Promise.reject(error);
   }
 );
