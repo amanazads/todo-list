@@ -39,18 +39,18 @@ Few dependencies might be missing, refer to package.json
    - Create a file named (in backend)`.env` in the root folder
    ```env
    PORT=5003
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/todos?retryWrites=true&w=majority
-JWT_SECRET=change_this_secret
-JWT_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:3000
-SMTP_HOST=smtp.mailtrap.io
-SMTP_PORT=587
-SMTP_USER=your_mailtrap_user
-SMTP_PASS=your_mailtrap_pass
+   MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/todos?retryWrites=true&w=majority
+   JWT_SECRET=change_this_secret
+   JWT_EXPIRES_IN=7d
+   FRONTEND_URL=http://localhost:3000
+   SMTP_HOST=smtp.mailtrap.io
+   SMTP_PORT=587
+   SMTP_USER=your_mailtrap_user
+   SMTP_PASS=your_mailtrap_pass
 ````
 - Create a file named (in frontend)`.env` in the root folder
    ```env
-VITE_API_URL=http://localhost:5003/api
+   VITE_API_URL=http://localhost:5003/api
 ````
 
 - Save the file
